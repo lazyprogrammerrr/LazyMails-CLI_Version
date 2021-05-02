@@ -19,4 +19,3 @@
 - Added Attachement Feature Of Any Kind. User Just Have To Give Name of File With .Extension
 - Added A Log File "lazymailslog.txt" To Check Log.
 - Used Keyboard Exception as a Feature To Exit From Program.
-- 
