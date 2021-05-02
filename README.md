@@ -10,5 +10,13 @@
 - After Writing Message Go To -> https://wordtohtml.net/ This Website Its Free!
 - Or You Can Also Write Html tags manually its on you!
 
+3. You Need To Turn On Less Secure Apps Option In Your Gmail Account.
+
 # MODULES USED
 - I Will Push a Requirements.txt file,you can pip install it.
+
+# CODE UPDATE
+- Added Attachement Feature Of Any Kind. User Just Have To Give Name of File With .Extension
+- Added A Log File "lazymailslog.txt" To Check Log.
+- Used Keyboard Exception as a Feature To Exit From Program.
+- 

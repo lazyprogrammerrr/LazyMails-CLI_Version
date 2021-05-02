@@ -1,8 +1,11 @@
 #imports
 import pandas as p
 import smtplib,ssl
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email.message import EmailMessage
 import docx2txt
 import os
 from rich.console import Console
@@ -10,8 +13,10 @@ from rich.table import Table
 from rich import print
 import time
 import stdiomask
+from email import encoders
 
 c = Console() # instance of rich module 
+msg = EmailMessage()
 
 logo = '''
 
@@ -24,13 +29,14 @@ logo = '''
 '''
 print(logo)
 print("\t\t\t\t\t\t  Git - LazyProgrammerrr")
+print("\nYou Can Press [b bright_red] (ctrl + c) [/b bright_red] to exit anytime.")
 
 #try block with loop to interpret data from excel and setting up server
 try:
     while True:
-        email_input = c.input("[b magenta]Enter Your Email Here -> [/b magenta]")
-        # password_input = c.input("\n[b bright_yellow]Enter Your Password Here -> [/b bright_yellow]")
-        password_input = stdiomask.getpass(prompt='\nEnter Your Password Here -> ')
+        email_input = c.input("\n[b magenta]Enter Your Email Here -> [/b magenta]")
+        password_input = c.input("\n[b bright_yellow]Enter Your Password Here -> [/b bright_yellow]")
+        # password_input = stdiomask.getpass(prompt='\nEnter Your Password Here -> ')               #<- uncomment this to mask your password in terminal
         context = ssl.create_default_context()
         port = 465
         smtp_server = "smtp.gmail.com"
@@ -58,6 +64,35 @@ try:
                 break
             except:
                 print("[b bright_red]File Not Found![/b bright_red]")
+    try:
+        attachement_ask = c.input("\n[b bright_yellow]Do You Want To Add Attachement To Your Email? Press(Y) or (N) -> [/b bright_yellow]").casefold()
+        if attachement_ask == 'y':
+            while True:
+                attach_file_name = c.input("\n[b magenta]Enter Attachement File Path Here -> [/b magenta]").replace('"', '')
+                attachfilenameask = c.input("\n[b blue]Enter Custom File Name Here [b green](WITH FILE EXTENSTION)[/b green] -> [/b blue]")
+                try:
+                    attach_file = open(attach_file_name, 'rb') # Open the file as binary mode
+                    file_name = attach_file.name
+                    payload = MIMEBase('application', 'octet-stream',Name=attachfilenameask)
+                    payload.set_payload((attach_file).read())
+                    encoders.encode_base64(payload) #encode the attachment
+                    payload.add_header('Content-Disposition', 'attachment')
+                    print("[b bright_green]Attachement Added![/b bright_green]\n")
+                    yes = True
+                    # message.attach(payload)
+                    time.sleep(0.2)
+                    print("\nSending Mails:")
+                    break
+                except:
+                    print("[b bright_red]File Not Found![/b bright_red]")
+        else:
+            yes = False
+            print("[b bright_red]No Attachement Is Added![/b bright_red]")
+            time.sleep(0.2)
+            print("\nSending Mails:")
+    except:
+        print("Some Error Occured")
+    
     for i in range(len(contacts)):
         Name , Email = contacts.iloc[i] #unpacking the data
         message = MIMEMultipart("alternative")
@@ -65,6 +100,12 @@ try:
         message['To'] = Email
         message['Subject'] = subject_input
         message.attach(MIMEText(template.format(Name.split()[0]),'html'))
+        
+        if yes == True:
+            message.attach(payload)
+        else:
+            pass
+
         text = message.as_string()
         context = ssl.create_default_context()
 
@@ -73,11 +114,14 @@ try:
             server.sendmail(message["From"],message["To"],text)
             server.quit()
         time.sleep(0.1)
-        print("[b bright_cyan]Sent To -> [/b bright_cyan]",Name,'[b bright_yellow]Id: [/b bright_yellow]'+Email)
+        with open('lazymailslog.txt','a') as f:
+                x = datetime.now()
+                f.write("Log Time-> "+ str(x) + "\tName-> " + Name + " Email -> " + Email + "\n")
+        print("\n[b bright_cyan]Sent To -> [/b bright_cyan]",Name,'[b bright_yellow]Id: [/b bright_yellow]'+Email)
     print("\n[b bright_green]All Email Sent[/b bright_green]")
     time.sleep(2)
 
 #handling exception
 except KeyboardInterrupt:
-    print("\n\n[b bright_red]You Pressed Wrong Keys! Program Exiting.[/b bright_red]")
+    print("\n\n[b bright_red]Program Exiting.[/b bright_red]")
     time.sleep(1)
