@@ -14,6 +14,7 @@ from rich import print
 import time
 import stdiomask
 from email import encoders
+import getpass
 
 c = Console() # instance of rich module 
 msg = EmailMessage()
@@ -35,8 +36,8 @@ print("\nYou Can Press [b bright_red] (ctrl + c) [/b bright_red] to exit anytime
 try:
     while True:
         email_input = c.input("\n[b magenta]Enter Your Email Here -> [/b magenta]")
-        password_input = c.input("\n[b bright_yellow]Enter Your Password Here -> [/b bright_yellow]")
-        # password_input = stdiomask.getpass(prompt='\nEnter Your Password Here -> ')               #<- uncomment this to mask your password in terminal
+        #password_input = c.input("\n[b bright_yellow]Enter Your Password Here -> [/b bright_yellow]")
+        password_input = stdiomask.getpass(prompt='\nEnter Your Password Here -> ')
         context = ssl.create_default_context()
         port = 465
         smtp_server = "smtp.gmail.com"
@@ -47,18 +48,33 @@ try:
                 break
             except:
                 print("\n[b bright_red]Wrong Email Id or Password! Please Check Again.[/b bright_red]\n")
+
+    print("\n(Email List) Choose from XLSX or CSV file!")
     while True:
-        file_input = c.input("\n[b bright_cyan]Choose Your Email List File Here \nYou Can Also Paste The Path Link Of File [b bright_red]'Using Shift + Right Click'[/b bright_red]-> [/b bright_cyan]").replace('"', '')
-        try:
-            datafile = p.read_excel(file_input)
-            contacts = p.DataFrame(datafile)
-            break
-        except:
-            print("[b bright_red]File Not Found![/b bright_red]")
-            
+        file_choose = c.input("\nEnter Here [b bright_red](xlsx) or (csv)[/b bright_red]-> ").casefold()
+        if file_choose == 'xlsx':
+            file_input = c.input("\n[b bright_cyan]Choose Your Email List [b bright_yellow](XLSX)[/b bright_yellow]File Here \nYou Can Also Paste The Path Link Of File [b bright_red]'Using Shift + Right Click'[/b bright_red]-> [/b bright_cyan]").replace('"', '')
+            try:
+                datafile = p.read_excel(file_input)
+                contacts = p.DataFrame(datafile)
+                break
+            except Exception as e:
+                print("[b bright_red]File Not Found! or Selected File Is Not of (XLSX) Format![/b bright_red]")
+        if file_choose == 'csv':
+            file_input = c.input("\n[b bright_cyan]Choose Your Email List [b bright_yellow](CSV)[/b bright_yellow]File Here \nYou Can Also Paste The Path Link Of File [b bright_red]'Using Shift + Right Click'[/b bright_red]-> [/b bright_cyan]").replace('"', '')
+            try:
+                datafile = p.read_csv(file_input)
+                contacts = p.DataFrame(datafile,columns = ['Name','Email'])
+                break
+            except Exception as e:
+                print("[b bright_red]File Not Found!  or Selected File Is Not of (CSV) Format![/b bright_red]")
+        else:
+            print("\nPlease Choose From Given Options Only!")
+
+    
     subject_input = c.input("\n[b bright_blue]Enter Your Subject Here-> [/b bright_blue]")
     while True:
-            template_input = c.input("\n[b grey100]Enter Your Body Template File Name Here \nYou Can Also Paste The Path Link Of File [b bright_red]'Using Shift + Right Click'[/b bright_red]  -> [/b grey100]").replace('"', '')
+            template_input = c.input("\n[b grey100]Enter Your Body Template [b bright_yellow](DOCX)[/b bright_yellow]File Name Here \nYou Can Also Paste The Path Link Of File [b bright_red]'Using Shift + Right Click'[/b bright_red]  -> [/b grey100]").replace('"', '')
             try:
                 template = docx2txt.process(template_input)
                 break
@@ -114,10 +130,16 @@ try:
             server.sendmail(message["From"],message["To"],text)
             server.quit()
         time.sleep(0.1)
-        with open('lazymailslog.txt','a') as f:
+        path = os.path.join('C:\\','Users',getpass.getuser(),'Documents','LazyMailsLog')
+        if not os.path.exists(path):
+            os.makedirs(path)
+        filename = 'Lazymaillogs.txt'
+        with open(os.path.join(path, filename), 'a') as f:
                 x = datetime.now()
                 f.write("Log Time-> "+ str(x) + "\tName-> " + Name + " Email -> " + Email + "\n")
         print("\n[b bright_cyan]Sent To -> [/b bright_cyan]",Name,'[b bright_yellow]Id: [/b bright_yellow]'+Email)
+    with open(os.path.join(path, filename), 'a') as f:
+        f.write("\n\n\t\t\t------ END OF LOG ------\n\n")
     print("\n[b bright_green]All Email Sent[/b bright_green]")
     time.sleep(2)
 
