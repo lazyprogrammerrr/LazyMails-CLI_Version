@@ -17,5 +17,6 @@
 
 # CODE UPDATE
 - Added Attachement Feature Of Any Kind. User Just Have To Give Name of File With .Extension
-- Added A Log File "lazymailslog.txt" To Check Log.
+- Added A Log File "lazymailslog.txt" To Check Log in Documents/Lazymailslog folder.
 - Used Keyboard Exception as a Feature To Exit From Program.
+- Added Support For CSV File
